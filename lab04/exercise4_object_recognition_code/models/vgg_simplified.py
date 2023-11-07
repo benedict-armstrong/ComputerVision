@@ -2,6 +2,7 @@ import torch
 import torch.nn as nn
 import math
 
+
 class Vgg(nn.Module):
     def __init__(self, fc_layer=512, classes=10):
         super(Vgg, self).__init__()
@@ -31,14 +32,48 @@ class Vgg(nn.Module):
         # #     ...)
         # for all conv layers, set: kernel=3, padding=1
 
-        ...
+        self.conv_block1 = nn.Sequential(
+            nn.Conv2d(3, 64, kernel_size=3, padding=1),
+            nn.ReLU(),
+            nn.MaxPool2d(2)
+        )
+
+        self.conv_block2 = nn.Sequential(
+            nn.Conv2d(64, 128, kernel_size=3, padding=1),
+            nn.ReLU(),
+            nn.MaxPool2d(2)
+        )
+
+        self.conv_block3 = nn.Sequential(
+            nn.Conv2d(128, 256, kernel_size=3, padding=1),
+            nn.ReLU(),
+            nn.MaxPool2d(2)
+        )
+
+        self.conv_block4 = nn.Sequential(
+            nn.Conv2d(256, 512, kernel_size=3, padding=1),
+            nn.ReLU(),
+            nn.MaxPool2d(2)
+        )
+
+        self.conv_block5 = nn.Sequential(
+            nn.Conv2d(512, 512, kernel_size=3, padding=1),
+            nn.ReLU(),
+            nn.MaxPool2d(2)
+        )
+
+        self.classifier = nn.Sequential(
+            nn.Linear(512, self.fc_layer),
+            nn.ReLU(),
+            nn.Dropout(),
+            nn.Linear(self.fc_layer, self.classes)
+        )
 
         for m in self.modules():
             if isinstance(m, nn.Conv2d):
                 n = m.kernel_size[0] * m.kernel_size[1] * m.out_channels
                 m.weight.data.normal_(0, math.sqrt(2. / n))
                 m.bias.data.zero_()
-
 
     def forward(self, x):
         """
@@ -47,7 +82,13 @@ class Vgg(nn.Module):
         """
         score = None
         # todo
-        ...
+
+        x = self.conv_block1(x)
+        x = self.conv_block2(x)
+        x = self.conv_block3(x)
+        x = self.conv_block4(x)
+        x = self.conv_block5(x)
+        x = x.view(x.size(0), -1)
+        score = self.classifier(x)
 
         return score
-

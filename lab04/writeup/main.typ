@@ -13,14 +13,18 @@
 // your document will look. Go ahead and replace it with
 // your own content!
 
-= Introduction
-#lorem(60)
+= Assignment
+This weeks assignment was split into two parts:
+- Implementing a Bag-of-words Classifier
+- Implementing a CNN-based Classifier for the CIFAR-10 dataset
 
-== In this paper
-#lorem(20)
+= Bag-of-words Classifier
+We implemented a bag-of-words classifier using the following steps:
+- Generate bag-of-words histogram for each training image
+- Find interresting ke
+- Given a test image calculate bag-of-words histogram
+- Find its nearest neighbor training histogram
+- Predict: assign it the category of this nearest training image ($0$/$1$)
 
-=== Contributions
-#lorem(40)
-
-= Related Work
-#lorem(500)
+== Local Feature Extraction
+We start by extracting local features from the images using the SIFT algorithm as discussed in the lecture. 

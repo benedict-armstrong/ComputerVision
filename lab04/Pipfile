@@ -11,6 +11,8 @@ tqdm = "*"
 numpy = "*"
 opencv-python = "*"
 matplotlib = "*"
+tensorboard = "*"
+tensorboardx = "*"
 
 [dev-packages]
 torch-tb-profiler = "*"

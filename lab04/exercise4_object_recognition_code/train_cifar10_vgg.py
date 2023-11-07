@@ -11,33 +11,38 @@ import torch.nn.functional as F
 ####### training settings #########
 parser = argparse.ArgumentParser()
 parser.add_argument("--batch_size", default=128, type=int)
-parser.add_argument("--log_step", default=100, type=int, help='how many steps to log once')
+parser.add_argument("--log_step", default=100, type=int,
+                    help='how many steps to log once')
 parser.add_argument("--val_step", default=100, type=int)
-parser.add_argument("--num_epoch", default=50, type=int, help='maximum num of training epochs')
+parser.add_argument("--num_epoch", default=50, type=int,
+                    help='maximum num of training epochs')
 
 
-parser.add_argument("--fc_layer", default=512, type=int, help='feature number the first linear layer in VGG')
+parser.add_argument("--fc_layer", default=512, type=int,
+                    help='feature number the first linear layer in VGG')
 parser.add_argument("--lr", default=0.0001, type=float, help='learning rate')
 
-parser.add_argument("--save_dir", default='runs', type=str, help='path to save trained models and logs')
-parser.add_argument("--root", default='data/data_cnn/cifar-10-batches-py', type=str, help='path to dataset folder')
+parser.add_argument("--save_dir", default='runs', type=str,
+                    help='path to save trained models and logs')
+parser.add_argument("--root", default='data/data_cnn/cifar-10-batches-py',
+                    type=str, help='path to dataset folder')
 args = parser.parse_args()
 ###################################
 
 
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+device = torch.device("cuda" if torch.cuda.is_available() else "mps")
 # devide = torch.device('cpu')
 
 
-
-
 def train(writer, logger):
-    train_dataset = DataloaderCifar10(img_size=32, is_transform=True, split='train')
+    train_dataset = DataloaderCifar10(
+        img_size=32, is_transform=True, split='train')
     train_dataset.load_data(args.root)
     train_dataloader = torch.utils.data.DataLoader(dataset=train_dataset, batch_size=args.batch_size, shuffle=True,
                                                    num_workers=2)
 
-    val_dataset = DataloaderCifar10(img_size=32, is_transform=False, split='val')
+    val_dataset = DataloaderCifar10(
+        img_size=32, is_transform=False, split='val')
     val_dataset.load_data(args.root)
     val_dataloader = torch.utils.data.DataLoader(dataset=val_dataset, batch_size=args.batch_size, shuffle=False,
                                                  num_workers=2)
@@ -65,7 +70,8 @@ def train(writer, logger):
             # time_meter.update(time.time() - start_ts)
 
             if total_steps % args.log_step == 0:
-                print_str = '[Step {:d}/ Epoch {:d}]  Loss: {:.4f}  '.format(step, epoch, loss.item())
+                print_str = '[Step {:d}/ Epoch {:d}]  Loss: {:.4f}  '.format(
+                    step, epoch, loss.item())
                 logger.info(print_str)
                 writer.add_scalar('train/loss', loss.item(), total_steps)
                 print(print_str)
@@ -92,12 +98,13 @@ def train(writer, logger):
                     if acc > best_acc:
                         best_acc = acc
                         state = {
-                                "epoch": epoch,
-                                "total_steps": total_steps,
-                                "model_state": model.state_dict(),
-                                "best_acc": acc,
-                                }
-                        save_path = os.path.join(writer.file_writer.get_logdir(), "last_model.pkl")
+                            "epoch": epoch,
+                            "total_steps": total_steps,
+                            "model_state": model.state_dict(),
+                            "best_acc": acc,
+                        }
+                        save_path = os.path.join(
+                            writer.file_writer.get_logdir(), "last_model.pkl")
                         torch.save(state, save_path)
                         print('[*] best model saved\n')
                         logger.info('[*] best model saved\n')
@@ -116,14 +123,3 @@ if __name__ == '__main__':
     logger.info('Let the games begin')  # write in log file
     save_config(logdir, args)
     train(writer, logger)
-
-
-
-
-
-
-
-
-
-
-
