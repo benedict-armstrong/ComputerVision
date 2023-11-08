@@ -107,4 +107,4 @@ The last step is to implement the `forward()` method. This is done by simply pas
 )
 
 == Training
-We train the network for $10$ epochs using the provided configuration. With this we achieve a test accuracy of $82.62%$. The trained model can be found at `runs/4043/last_model.pkl`.
+The network was trained for $49$ epochs using the provided configuration. With this it achievse a test accuracy of *$82.62%$*. The trained model can be found at `runs/4043/last_model.pkl`.
