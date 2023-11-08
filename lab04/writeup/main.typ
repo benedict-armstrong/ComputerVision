@@ -35,7 +35,7 @@ hist = np.histogram(angles, bins=nBins)
 ```
 
 #figure(
-  image("grid_points.png", width: 60%),
+  image("images/grid_points.png", width: 60%),
   caption: [Keypoint grid for feature extraction on example image]
 )
 
@@ -47,14 +47,14 @@ This leaves us with $k$ cluster-centers described by $128$-dimensional vectors e
 We then use our training images to "learn" the distribution of these words in our training images.
 
 #figure(
-  image("histogram_lines.png", width: 80%),
+  image("images/histogram_lines.png", width: 80%),
   caption: [Avergage Bag-of-words occurence for all positive training images (red) and all negative training images (blue)]
 )
 
 #figure(
   grid(columns: 2,
-      image("histogram_positive.png"),
-      image("histogram_negative.png")
+      image("images/histogram_positive.png"),
+      image("images/histogram_negative.png")
     ),
   caption: [Avergage Bag-of-words occurence training images vs. test images]
 )
@@ -73,7 +73,7 @@ The graphs shown above already look promising but what is the actual accuracy? T
 We use a total of $5$ convolutional layers with $3$ by $3$ kernels and $2$ by $2$ max pooling layers. We use ReLU activation functions and dropout with $p=0.5$ after the first fully connected layer.
 
 #figure(
-  image("layers.png", width: 80%),
+  image("images/layers.png", width: 80%),
   caption: [CNN architecture (from exercise sheet)]
 )
 
@@ -108,3 +108,11 @@ The last step is to implement the `forward()` method. This is done by simply pas
 
 == Training
 The network was trained for $49$ epochs using the provided configuration. With this it achievse a test accuracy of *$82.62%$*. The trained model can be found at `runs/4043/last_model.pkl`.
+
+#figure(
+  grid(rows: 2,
+      image("images/tensorboard_acc.png"),
+      image("images/tensorboard_loss.png")
+    ),
+  caption: [Tensorboard training screenshots]
+)
