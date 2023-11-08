@@ -57,7 +57,7 @@ def test_grid_points():
     img = cv2.imread(
         "data/data_bow/cars-testing-neg/image_0051.png")
     img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    vPoints = grid_points(img, 20, 20, 30)
+    vPoints = grid_points(img, 10, 10, 8)
 
     # Output grid points on the image
     img_out = cv2.cvtColor(img, cv2.COLOR_GRAY2BGR)
@@ -290,6 +290,33 @@ if __name__ == '__main__':
     print('creating bow histograms for test set (neg) ...')
     vBoWNeg_test = create_bow_histograms(
         nameDirNeg_test, vCenters)  # [n_imgs, k]
+
+    # # Plot histogram of negative and positive occ. of each cluster center
+    # # Two different colors with two bars next to each other for every center (mean of all images)
+    # import matplotlib.pyplot as plt
+    # plt.figure()
+    # data = np.vstack((vBoWPos.mean(axis=0), vBoWNeg.mean(axis=0))).T
+
+    # # plt.bar(np.arange(data.shape[0]), data[:, 0], color='r', width=0.3)
+    # # plt.bar(np.arange(data.shape[0]) + 0.5, data[:, 1], color='b', width=0.3)
+
+    # # add a trendline for each color
+    # # plt.plot(np.arange(data.shape[0]), data[:, 0],
+    # #         color='r', alpha=0.2, label="Training Data")
+    # plt.plot(np.arange(data.shape[0]), data[:, 1],
+    #          color='b', alpha=0.2, label="Training Data")
+    # # plt.plot(np.arange(data.shape[0]),
+    # #         vBoWPos_test.mean(axis=0), color='orange', label="Test Data")
+    # plt.plot(np.arange(data.shape[0]), vBoWNeg_test.mean(
+    #     axis=0), color='y', label="Test Data")
+
+    # # plt.show()
+    # plt.title("Negative Images")
+    # plt.xlabel("Cluster Center")
+    # plt.ylabel("Average number off occurences")
+    # plt.legend()
+    # plt.savefig('histogram_negative_label.png')
+
     result_neg = 0
     print('testing neg samples ...')
     for i in range(vBoWNeg_test.shape[0]):
