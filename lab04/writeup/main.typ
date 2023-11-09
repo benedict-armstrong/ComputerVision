@@ -31,7 +31,7 @@ We start by extracting local features ("visual words") from the images using the
 ```python
 angles = np.arctan2(grad_y[start_y:end_y, start_x:end_x],
                     grad_x[start_y:end_y, start_x:end_x])
-hist = np.histogram(angles, bins=nBins)
+hist = np.histogram(angles, bins=nBins, range=(-np.pi, np.pi))
 ```
 
 #figure(
@@ -65,7 +65,22 @@ We can clearly see that the distribution of the bag of words histograms are quit
 
 We then use the bag-of-words histogram to classify the test images. We do this by calculating the bag-of-words histogram for each test image and then finding the nearest neighbor in the training set. We then assign the test image the same label as its nearest neighbor.
 
-The graphs shown above already look promising but what is the actual accuracy? The classifier achieves a test accuracy of $0.97$ or more for positive test images and $0.99$ or more for the negative test images.
+The graphs shown above already look promising but what is the actual accuracy? The classifier achieves a test accuracy of up to $1.0$ for positive and negative test images (with a bit of variability due to random cluster initialization).
+
+```log
+creating codebook ...
+No cached features found, computing
+number of extracted features:  10000
+clustering ...
+creating bow histograms (pos) ...
+creating bow histograms (neg) ...
+creating bow histograms for test set (pos) ...
+testing pos samples ...
+test pos sample accuracy: 1.0
+creating bow histograms for test set (neg) ...
+testing neg samples ...
+test neg sample accuracy: 1.0
+```
 
 = CNN-based Classifier
 

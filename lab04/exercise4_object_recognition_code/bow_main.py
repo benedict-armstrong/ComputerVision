@@ -98,7 +98,7 @@ def descriptors_hog(img: np.array, vPoints: np.array, cellWidth: int, cellHeight
                 angles = np.arctan2(grad_y[start_y:end_y, start_x:end_x],
                                     grad_x[start_y:end_y, start_x:end_x])
 
-                hist = np.histogram(angles, bins=nBins)
+                hist = np.histogram(angles, bins=nBins, range=(-np.pi, np.pi))
 
                 desc.extend(hist[0])
 
