@@ -10,6 +10,8 @@ tensorboard = "*"
 tensorboardx = "*"
 scipy = "*"
 scikit-image = "*"
+matplotlib = "*"
+pandas = "*"
 
 [dev-packages]
 
