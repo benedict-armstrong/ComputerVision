@@ -49,17 +49,19 @@ def meanshift_step(X: np.array, bandwidth=2) -> np.array:
 
 def meanshift(X: np.array, bandwidth=2, steps=5) -> np.array:
     for i in range(steps):
-        # print(f"Step {i}")
-        X = meanshift_step(X, bandwidth=bandwidth)
+        if os.path.exists(f".cache/ms_{i}_{bandwidth}.npz"):
+            data = np.load(f".cache/ms_{i}_{bandwidth}.npz")
+            X = data['X']
+        else:
+            X = meanshift_step(X, bandwidth=bandwidth)
     return X
 
 
-def test_meanshift(bandwidth=5, steps=10):
-
-    scale = 0.5    # downscale the image to run faster
+def test_meanshift(bandwidth=5, steps=10, scale=0.8):
 
     # Load image and convert it to CIELAB space
-    image = rescale(io.imread('eth.jpg'), scale, channel_axis=-1)
+    original_image = io.imread('eth.jpg')
+    image = rescale(original_image, scale, channel_axis=-1)
     image_lab = color.rgb2lab(image)
     shape = image_lab.shape  # record image shape
     image_lab = image_lab.reshape([-1, 3])  # flatten the image
@@ -98,7 +100,7 @@ def test_meanshift(bandwidth=5, steps=10):
     # resize result image to original resolution
     result_image = rescale(result_image, 1 / scale, order=0, channel_axis=-1)
     result_image = (result_image * 255).astype(np.uint8)
-    io.imsave(f'images/result_{steps}_{bandwidth}.png', result_image)
+    io.imsave(f'images/result_{bandwidth}_{steps}.png', result_image)
 
     # draw outline of segmentation result on original image (with original resolution)
     image_outlined = np.copy(image)
@@ -112,12 +114,12 @@ def test_meanshift(bandwidth=5, steps=10):
                            order=0, channel_axis=-1)
     result_image = (result_image * 255).astype(np.uint8)
     io.imsave(
-        f'images/outlined_{steps}_{bandwidth}.png', result_image)
+        f'images/outlined_{bandwidth}_{steps}.png', result_image)
 
 
 if __name__ == '__main__':
-    steps = range(1, 10, 1)
-    bandwidth = [5]
+    steps = range(1, 15, 1)
+    bandwidth = [4]
 
     # run for all combinations of steps and bandwidth
     for s in steps:
