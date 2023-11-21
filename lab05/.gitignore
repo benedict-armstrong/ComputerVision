@@ -1,2 +1,5 @@
 mean-shift/plots/
-result*.png
+*.png
+*.jpg
+.cache/
+logs/

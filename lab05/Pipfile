@@ -12,6 +12,7 @@ scipy = "*"
 scikit-image = "*"
 matplotlib = "*"
 pandas = "*"
+scikit-learn = "*"
 
 [dev-packages]
 

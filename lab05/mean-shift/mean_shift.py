@@ -1,9 +1,15 @@
+import os
 import time
 import numpy as np
 
 # run `pip install scikit-image` to install skimage, if you haven't done so
 from skimage import io, color
 from skimage.transform import rescale
+
+# label colors for visualization (500 random colors)
+# colors = np.random.rand(500, 3)
+# np.savez('colors_2.npz', colors=colors)
+# pass
 
 
 def distance(x: np.array, X: np.array) -> np.array:
@@ -41,14 +47,15 @@ def meanshift_step(X: np.array, bandwidth=2) -> np.array:
     return X
 
 
-def meanshift(X: np.array):
-    for i in range(1):
-        print(f"Step {i}")
-        X = meanshift_step(X)
+def meanshift(X: np.array, bandwidth=2, steps=5) -> np.array:
+    for i in range(steps):
+        # print(f"Step {i}")
+        X = meanshift_step(X, bandwidth=bandwidth)
     return X
 
 
-if __name__ == '__main__':
+def test_meanshift(bandwidth=5, steps=10):
+
     scale = 0.5    # downscale the image to run faster
 
     # Load image and convert it to CIELAB space
@@ -59,25 +66,62 @@ if __name__ == '__main__':
 
     # Run your mean-shift algorithm
     t = time.time()
-    X = meanshift(image_lab)
+    cache_file = f'.cache/ms_{steps}_{bandwidth}.npz'
+    if os.path.exists(cache_file):
+        data = np.load(cache_file)
+        X = data['X']
+    else:
+        X = meanshift(image_lab, bandwidth=bandwidth, steps=steps)
+        np.savez(cache_file, X=X)
     t = time.time() - t
     print('Elapsed time for mean-shift: {}'.format(t))
 
     # Load label colors and draw labels as an image
     colors = np.load('colors.npz')['colors']
+    colors_2 = np.load('colors_2.npz')['colors']
     colors[colors > 1.0] = 1
     colors[colors < 0.0] = 0
 
     centroids, labels = np.unique((X / 4).round(), return_inverse=True, axis=0)
 
-    # print(pd.DataFrame(labels))
+    print(
+        f"\tFound: {len(centroids)} centroids in {steps} steps with bandwidth {bandwidth}")
 
-    # convert result back to RGB
-    out = color.lab2rgb(image_lab[labels].reshape(-1, 1, 3))
-
-    result_image = out.reshape(shape)
+    if len(centroids) > 500:
+        print("\t\tToo many centroids, skipping")
+        return
+    if len(centroids) > 23:
+        result_image = colors_2[labels].reshape(shape)
+    else:
+        result_image = colors[labels].reshape(shape)
 
     # resize result image to original resolution
     result_image = rescale(result_image, 1 / scale, order=0, channel_axis=-1)
     result_image = (result_image * 255).astype(np.uint8)
-    io.imsave('result.png', result_image)
+    io.imsave(f'images/result_{steps}_{bandwidth}.png', result_image)
+
+    # draw outline of segmentation result on original image (with original resolution)
+    image_outlined = np.copy(image)
+    for i in range(shape[0]):
+        for j in range(shape[1]):
+            if i > 0 and labels[i * shape[1] + j] != labels[(i - 1) * shape[1] + j]:
+                image_outlined[i, j] = [255, 0, 0]
+            elif j > 0 and labels[i * shape[1] + j] != labels[i * shape[1] + j - 1]:
+                image_outlined[i, j] = [255, 0, 0]
+    result_image = rescale(image_outlined, 1 / scale,
+                           order=0, channel_axis=-1)
+    result_image = (result_image * 255).astype(np.uint8)
+    io.imsave(
+        f'images/outlined_{steps}_{bandwidth}.png', result_image)
+
+
+if __name__ == '__main__':
+    steps = range(1, 10, 1)
+    bandwidth = [5]
+
+    # run for all combinations of steps and bandwidth
+    for s in steps:
+        for b in bandwidth:
+            print(
+                f'Running mean-shift with bandwidth={b}, steps={s}')
+            test_meanshift(bandwidth=b, steps=s)
