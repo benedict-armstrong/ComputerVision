@@ -18,7 +18,7 @@ This writeup only covers the first part.
 
 = Mean-Shift
 
-We can split `mean-shift` into five steps:
+The mean-shift algorithm can be split into five steps:
 - Calculate distances between pixels
 - Calculate weights for each pixel based on distance
 - Calculate the mean of the pixels weighted by the weights
@@ -26,10 +26,10 @@ We can split `mean-shift` into five steps:
 - Repeat until convergence (or number of steps reached)
 
 == Calculating Distances
-We simply used numpy's `linalg.norm` function to calculate the distances for all pixels from a given pixel.
+I simply used numpy's `linalg.norm` function to calculate the distances for all pixels from a given pixel.
 
 == Calculating Weights
-We used the Gaussian kernel to calculate the weights for each pixel. The kernel is defined as:
+We use the Gaussian kernel to calculate the weights for each pixel. The kernel is defined as:
 $
   K(x) = e^(frac(x, sqrt(2)b)^2)
 $
@@ -46,14 +46,52 @@ this result is then used to update the pixels.
 
 = Results
 
-Now for the interesting part, the results. We ran the algorithm on the provided image:
+Now for the interesting part, the results. I ran the algorithm on the provided image:
 
 #figure(
   image("images/eth.jpg", width: 50%),
   caption: [Original Image]
 )
 
+#grid(
+  columns: 2,
+  column-gutter: 4mm,
+  row-gutter: 4mm,
+  figure(
+  image("images/result_1_14.png"),
+  caption: [Mean-shift with bandwidth = $1$]
+  ),
+  figure(
+  image("images/result_3_14.png"),
+  caption: [Mean-shift with bandwidth = $3$]
+  ),
+  figure(
+    image("images/result_5_14.png"),
+    caption: [Mean-shift with bandwidth = $5$]
+  ),
+  figure(
+    image("images/result_7_14.png"),
+    caption: [Mean-shift with bandwidth = $7$]
+  )
+)
+
+A bandwidth of one does not lead to good results after 15 steps. Three, five  
+
+#grid(
+  columns: 2,
+  column-gutter: 4mm,
+  figure(
+    image("images/scatter_before.png"),
+    caption: [3D Scatter plot of the colors before mean-shift]
+  ),
+  figure(
+    image("images/scatter_5_15.png"),
+    caption: [3D Scatter plot of the colors after 15 steps of mean-shift with bandwidth = $5$]
+  )
+)
+
+We can plot the color of each pixel on a 3D scatter plot to see how the colors are grouped. The first image shows the colors before mean-shift is applied, and the second shows the colors after 15 steps of mean-shift with a bandwidth of 5. We can see that the colors are grouped into 5 clusters.
 
 #show link: underline
-I've also made fun little #link("https://raw.githubusercontent.com/benedict-armstrong/cv/main/lab05/mean-shift/images/b_5/outline_5.gif")[GIF] showing the evolution of the algorithm.
+I've also made fun little #link("")[GIF] showing the evolution of the algorithm.
 

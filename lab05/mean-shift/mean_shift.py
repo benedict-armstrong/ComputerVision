@@ -138,7 +138,7 @@ def test_meanshift(image_path: str, bandwidth=5, steps=10, scale=0.5, location_p
 
 if __name__ == '__main__':
     steps = 15
-    bandwidth = [3, 5]
+    bandwidth = [5]
 
     # run for all combinations of steps and bandwidth
     for b in bandwidth:
@@ -149,5 +149,5 @@ if __name__ == '__main__':
             bandwidth=b,
             steps=steps,
             scale=0.5,
-            location_penalty=0.2
+            # location_penalty=0.2
         )

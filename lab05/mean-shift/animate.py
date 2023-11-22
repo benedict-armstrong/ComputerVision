@@ -13,7 +13,7 @@ scale = 0.5    # downscale the image to run faster
 image_path = "eth.jpg"
 image_name, _ = os.path.splitext(image_path)
 steps = 15
-bandwidth = 1
+bandwidth = 5
 with_color = True
 distance = False
 
@@ -56,6 +56,9 @@ def update(i):
     if with_color:
         scatter.set_color(color.lab2rgb(X[:, :3]))
 
+    # if i == steps - 1:
+    #     plt.savefig("last.png")
+
 
 fig = plt.figure()
 ax = fig.add_subplot(projection='3d')
@@ -69,6 +72,9 @@ ax.set_zlabel('b')
 # ax.set_zlim(-128, 127)
 # plot 3D scatter of X
 scatter = ax.scatter(X[:, 0], X[:, 1], X[:, 2])
+scatter.set_color(color.lab2rgb(X[:, :3]))
+
+# plt.savefig(f"first.png")
 
 if distance:
     # set color based on position in RGB color space r,g,b -> [0, 1]
@@ -87,5 +93,4 @@ ani = animation.FuncAnimation(fig, update, frames=steps)
 
 ani.save(f"images/{image_name}/{'location_' if distance else ''}{'color_' if with_color else''}{bandwidth}_{steps}.gif",
          writer='imagemagick', fps=3)
-
 plt.show()
