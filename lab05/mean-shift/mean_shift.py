@@ -6,11 +6,6 @@ import numpy as np
 from skimage import io, color
 from skimage.transform import rescale
 
-# label colors for visualization (500 random colors)
-# colors = np.random.rand(500, 3)
-# np.savez('colors_2.npz', colors=colors)
-# pass
-
 
 def distance(x: np.array, X: np.array) -> np.array:
     """
@@ -18,7 +13,8 @@ def distance(x: np.array, X: np.array) -> np.array:
 
     radius = +∞
     """
-    return np.sqrt(np.sum((x - X) ** 2, axis=1))
+    # return np.sqrt(np.sum((x - X) ** 2, axis=1))
+    return np.linalg.norm(x - X, axis=1)
 
 
 def gaussian(dist: np.array, bandwidth: float) -> np.array:
@@ -49,26 +45,37 @@ def meanshift_step(X: np.array, bandwidth=2) -> np.array:
 
 def meanshift(X: np.array, bandwidth=2, steps=5) -> np.array:
     for i in range(steps):
-        if os.path.exists(f".cache/ms_{i}_{bandwidth}.npz"):
-            data = np.load(f".cache/ms_{i}_{bandwidth}.npz")
-            X = data['X']
-        else:
-            X = meanshift_step(X, bandwidth=bandwidth)
+        X = meanshift_step(X, bandwidth=bandwidth)
     return X
 
 
-def test_meanshift(bandwidth=5, steps=10, scale=0.8):
+def test_meanshift(bandwidth=5, steps=10, scale=0.5, location_penalty=None):
+
+    name = f"{f'xy_{location_penalty}_' if location_penalty else '' }{bandwidth}_{steps}"
 
     # Load image and convert it to CIELAB space
     original_image = io.imread('eth.jpg')
     image = rescale(original_image, scale, channel_axis=-1)
     image_lab = color.rgb2lab(image)
     shape = image_lab.shape  # record image shape
-    image_lab = image_lab.reshape([-1, 3])  # flatten the image
+
+    if location_penalty:
+        image_lab = np.concatenate(
+            (image_lab, np.indices(shape[:2]).transpose(1, 2, 0)),
+            axis=2
+        )
+
+        image_lab[:, :, 3:] *= location_penalty
+
+        # flatten the image with 5 channels
+        image_lab = image_lab.reshape([-1, 5])
+    else:
+        # flatten the image with 3 channels
+        image_lab = image_lab.reshape([-1, 3])
 
     # Run your mean-shift algorithm
     t = time.time()
-    cache_file = f'.cache/ms_{steps}_{bandwidth}.npz'
+    cache_file = f'.cache/ms_{name}.npz'
     if os.path.exists(cache_file):
         data = np.load(cache_file)
         X = data['X']
@@ -100,7 +107,7 @@ def test_meanshift(bandwidth=5, steps=10, scale=0.8):
     # resize result image to original resolution
     result_image = rescale(result_image, 1 / scale, order=0, channel_axis=-1)
     result_image = (result_image * 255).astype(np.uint8)
-    io.imsave(f'images/result_{bandwidth}_{steps}.png', result_image)
+    io.imsave(f'images/result_{name}.png', result_image)
 
     # draw outline of segmentation result on original image (with original resolution)
     image_outlined = np.copy(image)
@@ -114,12 +121,12 @@ def test_meanshift(bandwidth=5, steps=10, scale=0.8):
                            order=0, channel_axis=-1)
     result_image = (result_image * 255).astype(np.uint8)
     io.imsave(
-        f'images/outlined_{bandwidth}_{steps}.png', result_image)
+        f'images/outlined_{name}.png', result_image)
 
 
 if __name__ == '__main__':
     steps = range(1, 15, 1)
-    bandwidth = [4]
+    bandwidth = [5]
 
     # run for all combinations of steps and bandwidth
     for s in steps:
