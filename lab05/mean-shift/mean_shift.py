@@ -126,7 +126,7 @@ def test_meanshift(bandwidth=5, steps=10, scale=0.5, location_penalty=None):
 
 if __name__ == '__main__':
     steps = range(1, 15, 1)
-    bandwidth = [5]
+    bandwidth = [7]
 
     # run for all combinations of steps and bandwidth
     for s in steps:

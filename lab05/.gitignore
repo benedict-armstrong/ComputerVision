@@ -1,5 +1,3 @@
-mean-shift/plots/
-*.png
-*.jpg
+mean-shift/images/
 .cache/
 logs/
