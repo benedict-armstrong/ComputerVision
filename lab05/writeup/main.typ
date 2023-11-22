@@ -9,13 +9,6 @@
   ),
 )
 
-= Assignment
-This weeks assignment was split into two parts:
-- Implementing mean-shift for image segmentation
-- Implementing a simplified version of SegNet
-
-This writeup only covers the first part.
-
 = Mean-Shift
 
 The mean-shift algorithm can be split into five steps:
@@ -46,12 +39,7 @@ this result is then used to update the pixels.
 
 = Results
 
-Now for the interesting part, the results. I ran the algorithm on the provided image:
-
-#figure(
-  image("images/eth.jpg", width: 50%),
-  caption: [Original Image]
-)
+Now for the interesting part, the results. I ran the algorithm on the provided image of the ETH main building. I tried a few different bandwidths with 15 steps each to see how they affect the result.
 
 #grid(
   columns: 2,
@@ -75,7 +63,18 @@ Now for the interesting part, the results. I ran the algorithm on the provided i
   )
 )
 
-A bandwidth of one does not lead to good results after 15 steps. Three, five  
+Bandwidths of 1 and 7 seem to be too small and too large respectively. For $b=1$ the image is too noisy and for $b=7$ the image is too smooth and we loose detail such as the left side of the building.
+
+A bandwidth 3 and 5 seems pretty good but somewhere in the middle might be the sweet spot. After playing around abit I found that a bandwidth of 4.5 with 20 steps gives the following (best) result:
+
+#figure(
+  image("images/result_4.5_19.png", width: 50%),
+  caption: [Mean-shift with bandwidth = $4.5$ and $20$ steps]
+)
+
+Which seems to be a good balance between the two.
+
+=== Color space
 
 #grid(
   columns: 2,
@@ -93,5 +92,5 @@ A bandwidth of one does not lead to good results after 15 steps. Three, five
 We can plot the color of each pixel on a 3D scatter plot to see how the colors are grouped. The first image shows the colors before mean-shift is applied, and the second shows the colors after 15 steps of mean-shift with a bandwidth of 5. We can see that the colors are grouped into 5 clusters.
 
 #show link: underline
-I've also made fun little #link("")[GIF] showing the evolution of the algorithm.
+I've also made a few little #link("https://github.com/benedict-armstrong/cv/tree/main/lab05/writeup/images/gifs")[GIFs] showing the evolution of the algorithm (including the scatter plot shown above).
 

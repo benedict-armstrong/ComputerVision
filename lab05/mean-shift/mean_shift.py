@@ -49,7 +49,7 @@ def meanshift(X: np.array, bandwidth=2, steps=5) -> np.array:
     return X
 
 
-def test_meanshift(image_path: str, bandwidth=5, steps=10, scale=0.5, location_penalty=None):
+def test_meanshift(image_path: str, bandwidth=5.0, steps=10, scale=0.5, location_penalty=None):
 
     image_name, _ = os.path.splitext(image_path)
     if not os.path.isdir(f'images/{image_name}'):
@@ -137,8 +137,8 @@ def test_meanshift(image_path: str, bandwidth=5, steps=10, scale=0.5, location_p
 
 
 if __name__ == '__main__':
-    steps = 15
-    bandwidth = [5]
+    steps = 20
+    bandwidth = [4.75]
 
     # run for all combinations of steps and bandwidth
     for b in bandwidth:
