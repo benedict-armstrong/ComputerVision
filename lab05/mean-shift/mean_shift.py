@@ -135,10 +135,33 @@ def test_meanshift(image_path: str, bandwidth=5.0, steps=10, scale=0.5, location
         io.imsave(
             f'images/{image_name}/outlined_{name}.png', result_image)
 
+        # save image in using centroids as colors
+        temp = centroids[labels][:, :3]
+        result_image = color.lab2rgb(temp)
+        result_image *= 4
+        result_image[result_image > 1.0] = 1
+        result_image = result_image.reshape(shape)
+        result_image = rescale(result_image, 1 / scale,
+                               order=0, channel_axis=-1)
+        result_image = (result_image * 255).astype(np.uint8)
+        io.imsave(
+            f'images/{image_name}/result_{name}_{bandwidth}_{i}_centroids.png', result_image)
+
+    # save final result as result.png with colors from image
+    # temp = centroids[labels][:, :3]
+    # result_image = color.lab2rgb(temp)
+    # result_image *= 4
+    # result_image[result_image > 1.0] = 1
+    # result_image = result_image.reshape(shape)
+    # result_image = rescale(result_image, 1 / scale,
+    #                        order=0, channel_axis=-1)
+    # result_image = (result_image * 255).astype(np.uint8)
+    # io.imsave(f'result_{image_name}_{bandwidth}.png', result_image)
+
 
 if __name__ == '__main__':
     steps = 20
-    bandwidth = [4.75]
+    bandwidth = [4.5]
 
     # run for all combinations of steps and bandwidth
     for b in bandwidth:

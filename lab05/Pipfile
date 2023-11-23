@@ -15,6 +15,7 @@ pandas = "*"
 scikit-learn = "*"
 
 [dev-packages]
+torch-tb-profiler = "*"
 
 [requires]
 python_version = "3.11"

@@ -11,12 +11,11 @@
 
 = Mean-Shift
 
-The mean-shift algorithm can be split into five steps:
+The mean-shift algorithm can be split into four steps which are repeated until convergence:
 - Calculate distances between pixels
 - Calculate weights for each pixel based on distance
 - Calculate the mean of the pixels weighted by the weights
 - Update the pixels to the mean
-- Repeat until convergence (or number of steps reached)
 
 == Calculating Distances
 I simply used numpy's `linalg.norm` function to calculate the distances for all pixels from a given pixel.
@@ -43,7 +42,7 @@ Now for the interesting part, the results. I ran the algorithm on the provided i
 
 #grid(
   columns: 2,
-  column-gutter: 4mm,
+  column-gutter: 6mm,
   row-gutter: 4mm,
   figure(
   image("images/result_1_14.png"),
@@ -67,18 +66,26 @@ Bandwidths of 1 and 7 seem to be too small and too large respectively. For $b=1$
 
 A bandwidth 3 and 5 seems pretty good but somewhere in the middle might be the sweet spot. After playing around abit I found that a bandwidth of 4.5 with 20 steps gives the following (best) result:
 
-#figure(
-  image("images/result_4.5_19.png", width: 50%),
-  caption: [Mean-shift with bandwidth = $4.5$ and $20$ steps]
+#grid(
+  columns: 2,
+  column-gutter: 6mm,
+  figure(
+    image("images/result_4.5_19.png"),
+    caption: [Mean-shift with bandwidth = $4.5$ and $20$ steps]
+  ),
+  figure(
+    image("images/result_4.5_19_centroids.png"),
+    caption: [Mean-shift with bandwidth = $4.5$ and $20$ steps (using color of centroids)]
+  )
 )
 
-Which seems to be a good balance between the two.
+Which seems to be a good balance between the two. There was issue I noticed where `colors.npz` only contained $24$ colors. So if the algorithm generated more than $24$ centroids it would fail. My solution was to simply create a new `colors_2.npz` file with $500$ (random) colors.
 
 === Color space
 
 #grid(
   columns: 2,
-  column-gutter: 4mm,
+  column-gutter: 10mm,
   figure(
     image("images/scatter_before.png"),
     caption: [3D Scatter plot of the colors before mean-shift]
@@ -92,5 +99,5 @@ Which seems to be a good balance between the two.
 We can plot the color of each pixel on a 3D scatter plot to see how the colors are grouped. The first image shows the colors before mean-shift is applied, and the second shows the colors after 15 steps of mean-shift with a bandwidth of 5. We can see that the colors are grouped into 5 clusters.
 
 #show link: underline
-I've also made a few little #link("https://github.com/benedict-armstrong/cv/tree/main/lab05/writeup/images/gifs")[GIFs] showing the evolution of the algorithm (including the scatter plot shown above).
+I've also made a few little #link("https://polybox.ethz.ch/index.php/s/eOBjCNSUK2qIlHO")[GIFs] showing the evolution of the algorithm (including the scatter plot shown above).
 

@@ -14,10 +14,18 @@ logger = logging.getLogger(__name__)
 
 class SegNetLite(nn.Module):
 
-    def __init__(self, kernel_sizes=[3, 3, 3, 3], down_filter_sizes=[32, 64, 128, 256],
-            up_filter_sizes=[128, 64, 32, 32], conv_paddings=[1, 1, 1, 1],
-            pooling_kernel_sizes=[2, 2, 2, 2], pooling_strides=[2, 2, 2, 2], **kwargs):
-        """Initialize SegNet Module
+    def __init__(
+        self,
+        kernel_sizes=[3, 3, 3, 3],
+        down_filter_sizes=[32, 64, 128, 256],
+        up_filter_sizes=[128, 64, 32, 32],
+        conv_paddings=[1, 1, 1, 1],
+        pooling_kernel_sizes=[2, 2, 2, 2],
+        pooling_strides=[2, 2, 2, 2],
+        **kwargs
+    ):
+        """
+        Initialize SegNet Module
 
         Args:
             kernel_sizes (list of ints): kernel sizes for each convolutional layer in downsample/upsample path.
@@ -31,7 +39,7 @@ class SegNetLite(nn.Module):
         self.num_down_layers = len(kernel_sizes)
         self.num_up_layers = len(kernel_sizes)
 
-        input_size = 3 # initial number of input channels
+        input_size = 3  # initial number of input channels
         # Construct downsampling layers.
         # As mentioned in the assignment, blocks of the downsampling path should have the
         # following output dimension (igoring batch dimension):
@@ -40,7 +48,14 @@ class SegNetLite(nn.Module):
         layers_conv_down = []
         layers_bn_down = []
         layers_pooling = []
-        raise NotImplementedError('Downsampling layers are not implemented!')
+
+        for i in range(self.num_down_layers):
+            layers_conv_down.append(nn.Conv2d(
+                input_size, down_filter_sizes[i], kernel_sizes[i], padding=conv_paddings[i]))
+            layers_bn_down.append(nn.BatchNorm2d(down_filter_sizes[i]))
+            layers_pooling.append(nn.MaxPool2d(
+                pooling_kernel_sizes[i], stride=pooling_strides[i], return_indices=True))
+            input_size = down_filter_sizes[i]
 
         # Convert Python list to nn.ModuleList, so that PyTorch's autograd
         # package can track gradients and update parameters of these layers
@@ -56,7 +71,14 @@ class SegNetLite(nn.Module):
         layers_conv_up = []
         layers_bn_up = []
         layers_unpooling = []
-        raise NotImplementedError('Upsampling layers are not implemented!')
+
+        for i in range(self.num_up_layers):
+            layers_unpooling.append(nn.MaxUnpool2d(
+                pooling_kernel_sizes[i], stride=pooling_strides[i]))
+            layers_conv_up.append(nn.Conv2d(
+                input_size, up_filter_sizes[i], kernel_sizes[i], padding=conv_paddings[i]))
+            layers_bn_up.append(nn.BatchNorm2d(up_filter_sizes[i]))
+            input_size = up_filter_sizes[i]
 
         # Convert Python list to nn.ModuleList, so that PyTorch's autograd
         # can track gradients and update parameters of these layers
@@ -67,10 +89,32 @@ class SegNetLite(nn.Module):
         self.relu = nn.ReLU(True)
 
         # Implement a final 1x1 convolution to to get the logits of 11 classes (background + 10 digits)
-        raise NotImplementedError('Final convolution layer is not implemented!')
+        self.conv_final = nn.Conv2d(input_size, 11, 1, padding=0)
 
     def forward(self, x):
-        raise NotImplementedError('Forward function not implemented!')
+        # apply down-sampling layers
+        outputs = []
+        indices = []
+        for i in range(self.num_down_layers):
+            x = self.layers_conv_down[i](x)
+            x = self.layers_bn_down[i](x)
+            x = self.relu(x)
+            outputs.append(x)
+            x, j = self.layers_pooling[i](x)
+            indices.append(j)
+
+        # apply up-sampling layers
+        for i in range(self.num_up_layers):
+            x = self.layers_unpooling[i](
+                x, indices[self.num_up_layers - i - 1])
+            x = self.layers_conv_up[i](x)
+            x = self.layers_bn_up[i](x)
+            x = self.relu(x)
+
+        # apply final 1x1 convolution
+        x = self.conv_final(x)
+
+        return x
 
 
 def get_seg_net(**kwargs):
