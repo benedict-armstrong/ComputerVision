@@ -9,8 +9,11 @@ def resample(
     This function should resample the particles based on their weights
     """
     n = particles.shape[0]
-    new_particles = particles[
-        np.random.choice(n, n, p=particles_w.flatten())]
-    new_particles_w = np.ones(particles_w.shape) / particles_w.shape[0]
+    idx = np.random.choice(n, n, p=particles_w.flatten())
+
+    new_particles = particles[idx, :]
+
+    new_particles_w = particles_w[idx, :]
+    new_particles_w = new_particles_w / np.sum(new_particles_w)
 
     return new_particles, new_particles_w
