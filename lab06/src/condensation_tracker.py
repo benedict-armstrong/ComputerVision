@@ -40,6 +40,7 @@ def toggle_selector(event):
 def condensation_tracker(video_name, params):
     '''
     video_name - video name
+
     params - parameters
         - draw_plats {0, 1} draw output plots throughout
         - hist_bin   1-255 number of histogram bins for each color: proper values 4,8,16
@@ -64,7 +65,7 @@ def condensation_tracker(video_name, params):
         last_frame = 60
 
     # Change this to where your data is
-    data_dir = './ex6_data/'
+    data_dir = './data/'
     video_path = os.path.join(data_dir, video_name)
 
     vidcap = cv2.VideoCapture(video_path)
@@ -92,6 +93,8 @@ def condensation_tracker(video_name, params):
 
     bbox_width = bottom_right[0] - top_left[0]
     bbox_height = bottom_right[1] - top_left[1]
+
+    print("bbox", top_left, bottom_right, bbox_width, bbox_height)
 
     # Get initial color histogram
     # === implement fuction color_histogram() ===
@@ -136,7 +139,7 @@ def condensation_tracker(video_name, params):
         # Estimate
         # === Implement function estimate() ===
         mean_state_a_priori[i, :] = estimate(particles, particles_w)
-        # ======================================
+        # =====================================
 
         # Get frame
         ret, frame = vidcap.read()
@@ -232,12 +235,13 @@ if __name__ == "__main__":
     params = {
         "draw_plots": 1,
         "hist_bin": 16,
-        "alpha": 0,
-        "sigma_observe": 0.1,
-        "model": 0,
-        "num_particles": 30,
-        "sigma_position": 15,
-        "sigma_velocity": 1,
-        "initial_velocity": (1, 10)
+        "alpha": 0.3,  # color histogram update parameter (0 = no update)
+        "sigma_observe": 0.5,  # messurement noise
+        "model": 1,  # system model (0 = no motion, 1 = constant velocity)
+        "num_particles": 40,
+        "sigma_position": 10,  # positional noise
+        "sigma_velocity": 2,  # velocity noise
+        # initial velocity  (x, y) to set particles to
+        "initial_velocity": (0, 2)
     }
     condensation_tracker(video_name, params)
