@@ -143,6 +143,8 @@ def condensation_tracker(video_name, params):
 
         # Get frame
         ret, frame = vidcap.read()
+        if not ret:
+            break
         frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 
         # Draw
@@ -231,17 +233,17 @@ def condensation_tracker(video_name, params):
 
 
 if __name__ == "__main__":
-    video_name = 'video1.avi'
+    video_name = 'video2.avi'
     params = {
         "draw_plots": 1,
-        "hist_bin": 16,
-        "alpha": 0.2,  # color histogram update parameter (0 = no update)
-        "sigma_observe": 0.2,  # messurement noise
-        "model": 0,  # system model (0 = no motion, 1 = constant velocity)
-        "num_particles": 50,
-        "sigma_position": 10,  # positional noise
-        "sigma_velocity": 5,  # velocity noise
+        "hist_bin": 32,
+        "alpha": 0.1,  # color histogram update parameter (1 = no update)
+        "sigma_observe": 1.5,  # messurement noise
+        "model": 1,  # system model (0 = no motion, 1 = constant velocity)
+        "num_particles": 100,
+        "sigma_position": 20,  # positional noise
+        "sigma_velocity": 0.5,  # velocity noise
         # initial velocity  (x, y) to set particles to
-        "initial_velocity": (10, 0),
+        "initial_velocity": (5, -10),
     }
     condensation_tracker(video_name, params)

@@ -96,7 +96,41 @@ With settings:
 )
 
 #show link: underline
-As we can see in the figures above we get a pretty good result. The trajectories look similar to the ground truth and the distance is pretty low. Seems like it's working. A gif of the tracking can be found on #link("images/video1/dist.gif")[github].
+As we can see in the figures above we get a pretty good result. The trajectories look similar to the ground truth and the distance is pretty low. Seems like it's working. A gif of the tracking can be found on #link("https://github.com/benedict-armstrong/cv/blob/main/lab06/writeup/images/video1/dist.gif")[github].
+
+== Video 2
+
+The best tracking was achieved with the following settings for video3. For the following experiments these settings were used except for the parameters varied.
+
+#align(center, [
+  "draw_plots": 1, \
+  "hist_bin": 32, \
+  "alpha": 0.1, \
+  "sigma_observe": 1.5,  \
+  "model": 1, \
+  "num_particles": 100,\
+  "sigma_position": 20,  \
+  "sigma_velocity": 0.5, \
+  "initial_velocity": (5, -10),\
+]
+)
+
+Both with and without the constant velocity model the tracking worked best with a high sigma position. If it is high enough some particles will see "past" the occlusion and can then track the object again.
+
+#figure(
+image("images/video2/model_sigma_position.png"),
+caption: [
+  Average distance from truth with different sigma position
+]
+)
+
+In the following graph we can see that for both models a sigma observe in the range [0.3, 2] seems to be ideal.
+#figure(
+image("images/video2/distances_model_sigma_observe_repeats.png"),
+caption: [
+  Average distance from truth with different sigma observe
+]
+)
 
 == Video 3
 
@@ -149,15 +183,49 @@ With settings:
 As you can see adding the extra noise with the position leads to worse results. The ball is moving at a contant speed until it changes direction. The model with the velocity struggles to follow the abrupt change in direction. The model without velocity is able to follow the ball better.
 
 = Additional questions
-Using fewer particles leads to worse results in my testing. Below 10 particles the tracker is not able to follow the object at all. Above 60 or so seems to also be too much and leads to worse results.
 
-Using more bins seems to result in better results:
+*What is the effect of using more or fewer particles?*
 #figure(
-  image("images/video1/distances_hist_bin.png"),
+  image("images/video1/distances_num_particles_sigma_observe_repeats.png"),
+  caption: [
+    Average distance from truth pre/post with different number of particles and sigma observe (repeated 3 times)
+  ]
+)
+
+Params used:
+
+#align(center, [
+  "draw_plots": 1, \
+  "hist_bin": 32,\
+  "alpha": 0.3, \
+  "model": 0, \
+  "sigma_position": 10, 
+]
+)
+
+As we can see the number of particles has fairly little impact on performance for video1. Using very few particles leads to unpredictable results.
+
+*What is the effect of using more or fewer bins in the histogram color model?* \
+Using more bins seems to lead to better results:
+#figure(
+  image("images/video1/distances_hist_bin_2.png"),
   caption: [
     Distance from truth pre/post with different number of bins
   ]
 )
 
+Params used:
+
+#align(center, [
+  "draw_plots": 1, \
+  "alpha": 0.3, \
+  "sigma_observe": 0.2, \
+  "num_particles": 50, \
+  "sigma_position": 10, 
+  "model": 0, \
+]
+)
+
+*What is the advantage/disadvantage of allowing appearance model updating?* \
 Allowing the model to update is good if lighting changes (video 1 and 2) but leads to worse results for video 3 because the object is fairly constant.
 

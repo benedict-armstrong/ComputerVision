@@ -22,7 +22,7 @@ def observe(
 
         x, y, *_ = particles[i]
 
-        hist = color_histogram(
+        h = color_histogram(
             top_x=int(max(0, round(x - 0.5 * bbox_width))),
             top_y=int(max(0, round(y - 0.5 * bbox_height))),
             bottom_x=int(min(frame.shape[1], round(x + 0.5 * bbox_width))),
@@ -31,7 +31,7 @@ def observe(
             hist_bin=hist_bins
         )
 
-        distance = chi2_cost(hist, hist_target)
+        distance = chi2_cost(h, hist_target)
         particles_w[i] = np.exp(-distance / (2 * sigma_observe ** 2))
 
     if np.sum(particles_w) == 0:

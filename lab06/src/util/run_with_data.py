@@ -1,15 +1,11 @@
 import cv2
-import os
 import numpy as np
-import matplotlib.pyplot as plt
-from matplotlib.widgets import RectangleSelector
-from matplotlib import patches
 
 from color_histogram import color_histogram
+from estimate import estimate
 from propagate import propagate
 from observe import observe
 from resample import resample
-from estimate import estimate
 
 
 def condensation_tracker_non_interactive(video_path: str, params: dict):
@@ -27,25 +23,18 @@ def condensation_tracker_non_interactive(video_path: str, params: dict):
     if using model = 1 then the following parameters are used:
         - sigma_velocity   std. dev. of system model velocity noise
         - initial_velocity initial velocity to set particles to
+        - bbox          (x_center, y_center, width, height) for initial bounding box
     '''
 
     pre_positions = []
     post_positions = []
 
-    # Choose video
-    if video_path.endswith("video1.avi"):
-        first_frame = 10
-        last_frame = 42
-    elif video_path.endswith("video2.avi"):
-        first_frame = 3
-        last_frame = 39
-    elif video_path.endswith("video3.avi"):
-        first_frame = 1
-        last_frame = 60
-
     vidcap = cv2.VideoCapture(video_path)
-    vidcap.set(1, first_frame)
+    vidcap.set(1, 0)
     ret, first_image = vidcap.read()
+
+    number_of_frames = int(vidcap.get(cv2.CAP_PROP_FRAME_COUNT))
+    # print("number_of_frames", number_of_frames)
 
     frame_height = first_image.shape[0]
     frame_width = first_image.shape[1]
@@ -54,10 +43,9 @@ def condensation_tracker_non_interactive(video_path: str, params: dict):
     bbox = params["bbox"]
     bbox_width = bbox[2]
     bbox_height = bbox[3]
-    top_left = (bbox[0], bbox[1])
-    bottom_right = (bbox[0] + bbox[2], bbox[1] + bbox[3])
-
-    # print("bbox", top_left, bottom_right, bbox_width, bbox_height)
+    top_left = (round(bbox[0] - bbox_width/2), round(bbox[1] - bbox_height/2))
+    bottom_right = (round(bbox[0] + bbox_width/2),
+                    round(bbox[1] + bbox_height/2))
 
     # Get initial color histogram
     # === implement fuction color_histogram() ===
@@ -71,9 +59,9 @@ def condensation_tracker_non_interactive(video_path: str, params: dict):
 
     # a priori mean state
     mean_state_a_priori = np.zeros(
-        [last_frame - first_frame + 1, state_length])
+        [number_of_frames, state_length])
     mean_state_a_posteriori = np.zeros(
-        [last_frame - first_frame + 1, state_length])
+        [number_of_frames, state_length])
     # bounding box centre
     mean_state_a_priori[0, 0:2] = [
         (top_left[0] + bottom_right[0])/2., (top_left[1] + bottom_right[1])/2.]
@@ -87,8 +75,7 @@ def condensation_tracker_non_interactive(video_path: str, params: dict):
     particles_w = np.ones([params["num_particles"], 1]) * \
         1./params["num_particles"]
 
-    for i in range(last_frame - first_frame + 1):
-        t = i + first_frame
+    for i in range(number_of_frames + 1):
 
         # Propagate particles
         # === Implement function propagate() ===

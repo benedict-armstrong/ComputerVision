@@ -9,9 +9,8 @@ def estimate(
     """
     this function should estimate the mean state given the particles and their weights
     """
-    mean_state = np.zeros(particles.shape[-1])
-    # compute the weighted mean of all particles should have shape [2,]
 
+    # compute the weighted mean of all particles should have shape [2,]
     temp = particles * particles_w
 
     assert np.sum(particles_w) != 0

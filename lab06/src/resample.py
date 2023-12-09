@@ -12,8 +12,8 @@ def resample(
     idx = np.random.choice(n, n, p=particles_w.flatten())
 
     new_particles = particles[idx, :]
-
     new_particles_w = particles_w[idx, :]
+
     new_particles_w = new_particles_w / np.sum(new_particles_w)
 
     return new_particles, new_particles_w
