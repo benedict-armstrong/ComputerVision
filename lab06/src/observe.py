@@ -35,7 +35,7 @@ def observe(
         particles_w[i] = np.exp(-distance / (2 * sigma_observe ** 2))
 
     if np.sum(particles_w) == 0:
-        print("Warning: all weights are zero")
+        # print("Warning: all weights are zero")
 
         # return as shape (N, 1) uniform weights
         # this means we have probably lost the target

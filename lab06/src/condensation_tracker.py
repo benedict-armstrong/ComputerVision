@@ -59,7 +59,7 @@ def condensation_tracker(video_name, params):
         last_frame = 42
     elif video_name == "video2.avi":
         first_frame = 3
-        last_frame = 40
+        last_frame = 39
     elif video_name == "video3.avi":
         first_frame = 1
         last_frame = 60
@@ -231,17 +231,17 @@ def condensation_tracker(video_name, params):
 
 
 if __name__ == "__main__":
-    video_name = 'video3.avi'
+    video_name = 'video1.avi'
     params = {
         "draw_plots": 1,
         "hist_bin": 16,
-        "alpha": 0.3,  # color histogram update parameter (0 = no update)
-        "sigma_observe": 0.5,  # messurement noise
-        "model": 1,  # system model (0 = no motion, 1 = constant velocity)
-        "num_particles": 40,
+        "alpha": 0.2,  # color histogram update parameter (0 = no update)
+        "sigma_observe": 0.2,  # messurement noise
+        "model": 0,  # system model (0 = no motion, 1 = constant velocity)
+        "num_particles": 50,
         "sigma_position": 10,  # positional noise
-        "sigma_velocity": 2,  # velocity noise
+        "sigma_velocity": 5,  # velocity noise
         # initial velocity  (x, y) to set particles to
-        "initial_velocity": (0, 2)
+        "initial_velocity": (10, 0),
     }
     condensation_tracker(video_name, params)
