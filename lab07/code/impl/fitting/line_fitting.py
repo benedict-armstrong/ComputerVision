@@ -7,7 +7,6 @@ random.seed(0)
 
 
 def least_square(x: np.array, y: np.array):
-    # TODO
     # return the least-squares solution
     # you can use np.linalg.lstsq
 
@@ -16,7 +15,6 @@ def least_square(x: np.array, y: np.array):
 
 
 def num_inlier(x, y, k, b, n_samples, thres_dist):
-    # TODO
     # compute the number of inliers and a mask that denotes the indices of inliers
 
     distances = x * k + b - y
@@ -26,7 +24,6 @@ def num_inlier(x, y, k, b, n_samples, thres_dist):
 
 
 def ransac(x, y, iter, n_samples, thres_dist, num_subset):
-    # TODO
     # ransac
     k_ransac = None
     b_ransac = None
