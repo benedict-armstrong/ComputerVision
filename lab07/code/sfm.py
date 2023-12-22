@@ -120,9 +120,15 @@ def main():
     # ------------------Map extension--------------------------------------
     # Register new images + triangulate
     # Run until we can register all images
+    count = 0
+    include_images = ["0006.png", "0009.png", "0008.png", "0007.png",
+                      "0005.png", "0004.png", "0003.png", "0002.png", "0001.png", "0000.png"]
     while len(registered_images) < len(images):
         for image_name in images:
             if image_name in registered_images:
+                continue
+
+            if image_name not in include_images:
                 continue
 
             # Find 2D-3D correspondences
@@ -147,15 +153,20 @@ def main():
 
             # TODO
             # Triangulate new points wth all previously registered images
-            image_points3D, corrs = TriangulateImage(
+            new_image_points3D, corrs = TriangulateImage(
                 K, image_name, images, registered_images, matches)
 
             # TODO
             # Update the 3D points and image correspondences
             points3D, images = UpdateReconstructionState(
-                image_points3D, corrs, points3D, images)
+                new_image_points3D, corrs, points3D, images)
 
             registered_images.append(image_name)
+
+            count += 1
+            if count == len(include_images):
+                break
+        break
 
     # Visualize
     fig = plt.figure()

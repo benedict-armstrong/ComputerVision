@@ -113,7 +113,7 @@ def TriangulatePoints(K, im1, im2, matches):
 
     num_new_matches = new_matches.shape[0]
 
-    points3D = np.zeros((num_new_matches, 3))
+    new_points3D = np.zeros((num_new_matches, 3))
 
     for i in range(num_new_matches):
 
@@ -130,7 +130,7 @@ def TriangulatePoints(K, im1, im2, matches):
 
         _, _, vh = np.linalg.svd(A)
         homogeneous_point = vh[-1]
-        points3D[i] = homogeneous_point[:-1] / homogeneous_point[-1]
+        new_points3D[i] = homogeneous_point[:-1] / homogeneous_point[-1]
 
     # We need to keep track of the correspondences between image points and 3D points
     im1_corrs = new_matches[:, 0]
@@ -141,29 +141,30 @@ def TriangulatePoints(K, im1, im2, matches):
     # Make sure to also remove the corresponding rows in `im1_corrs` and `im2_corrs`
 
     # Filter points behind the first camera
-    im1_corrs = im1_corrs[points3D[:, 2] > 0]
-    im2_corrs = im2_corrs[points3D[:, 2] > 0]
-    points3D = points3D[points3D[:, 2] > 0]
+    im1_corrs = im1_corrs[new_points3D[:, 2] > 0]
+    im2_corrs = im2_corrs[new_points3D[:, 2] > 0]
+    new_points3D = new_points3D[new_points3D[:, 2] > 0]
 
     # Filter points behind the second camera
-    points3D_in_cam2 = np.linalg.inv(R2) @ (points3D - t2).T
-    im1_corrs = im1_corrs[points3D_in_cam2[2, :] > 0]
-    im2_corrs = im2_corrs[points3D_in_cam2[2, :] > 0]
-    points3D = points3D[points3D_in_cam2[2, :] > 0]
+    new_points3D_in_cam2 = np.linalg.inv(R2) @ (new_points3D - t2).T
+    im1_corrs = im1_corrs[new_points3D_in_cam2[2, :] > 0]
+    im2_corrs = im2_corrs[new_points3D_in_cam2[2, :] > 0]
+    new_points3D = new_points3D[new_points3D_in_cam2[2, :] > 0]
 
-    return points3D, im1_corrs, im2_corrs
+    return new_points3D, im1_corrs, im2_corrs
 
 
-def EstimateImagePose(points2D, points3D, K):
+def EstimateImagePose(points2D, new_points3D, K):
 
     # TODO
     # We use points in the normalized image plane.
     # This removes the 'K' factor from the projection matrix.
     # We don't normalize the 3D points here to keep the code simpler.
-    normalized_points2D = HNormalize(points2D)
+    normalized_points2D = HNormalize(
+        np.linalg.inv(K) @ MakeHomogeneous(points2D, 1).T).T
 
     constraint_matrix = BuildProjectionConstraintMatrix(
-        normalized_points2D, points3D)
+        normalized_points2D, new_points3D)
 
     # We don't use optimization here since we would need to make sure to only optimize on the se(3) manifold
     # (the manifold of proper 3D poses). This is a bit too complicated right now.
@@ -196,12 +197,28 @@ def TriangulateImage(K, image_name, images, registered_images, matches):
     # Make sure to keep track of all new 2D-3D correspondences, also for the registered images
 
     image = images[image_name]
-    points3D = np.zeros((0, 3))
+    new_points3D = np.zeros((0, 3))
 
     # You can save the correspondences for each image in a dict and refer to the `local` new point indices here.
     # Afterwards you just add the index offset before adding the correspondences to the images.
     corrs = {}
 
     # matches is a dict of matches index by (im1, im2)
+    for other in registered_images:
+        if other == image_name:
+            continue
 
-    return points3D, corrs
+        # Get the matches between the two images
+        other_image = images[other]
+        temp = GetPairMatches(image_name, other, matches)
+
+        new_3D_points, img_corrs, other_corrs = TriangulatePoints(
+            K, image, other_image, temp)
+
+        new_points3D = np.append(new_points3D, new_3D_points, axis=0)
+
+        # You can save the correspondences for each image in a dict and refer to the `local` new point indices here.
+        # Afterwards you just add the index offset before adding the correspondences to the images.
+        corrs[other] = other_corrs
+
+    return new_points3D, corrs
