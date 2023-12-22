@@ -122,7 +122,7 @@ def main():
     # Run until we can register all images
     count = 0
     include_images = ["0006.png", "0009.png", "0008.png", "0007.png",
-                      "0005.png", "0004.png", "0003.png", "0002.png", "0001.png", "0000.png"]
+                      "0005.png", "0004.png", "0003.png", "0002.png", "0001.png"]
     while len(registered_images) < len(images):
         for image_name in images:
             if image_name in registered_images:
